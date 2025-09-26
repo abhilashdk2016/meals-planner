@@ -27,6 +27,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/theme-toggle";
+import z from 'zod';
+import customErrorMap from "@/lib/customErrorMap";
+z.setErrorMap(customErrorMap);
 
 type RouteGroup = {
     group: string;
@@ -172,7 +175,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <Collapsible.Root className="fixed top-0 left-0 z-20 h-dvh" open={open} onOpenChange={setOpen}>
           <Collapsible.Content forceMount>
               <div className={`bg-background fixed top-0 left-0 h-screen w-64 border p-4 transition-transform duratio-300 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
-                  <div className="flex items-center justify-center">
+                  <div className="flex items-center justify-between">
                       <h1 className="font-semibold">Admin Dashboard</h1>
                       <Collapsible.Trigger asChild>
                           <Button size={'icon'} variant={'outline'}>

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode } from "react";
 import { toast } from "sonner";
+import AlertDialogProvider from "./ui/alert-dialog-provider";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +35,7 @@ const Providers = ({ children }: ProvidersProps) => {
       <QueryClientProvider client={queryClient}>
         <NextThemesProvider>{children}</NextThemesProvider>
         <Toaster />
+        <AlertDialogProvider />
       </QueryClientProvider>
     </NextThemesProvider>
   );

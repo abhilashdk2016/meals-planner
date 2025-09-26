@@ -1,0 +1,23 @@
+"use server";
+
+import db from "@/lib/db";
+import { CategorySchema } from "../_types/categorySchema";
+
+const getCategories = async () => {
+    return await db.category.findMany({
+        orderBy: {
+            name: 'asc'
+        }
+    });
+}
+
+const getCategory = async(id: number): Promise<CategorySchema> => {
+    const res = await db.category.findFirst({ where: { id }});
+    return {
+        action: 'update',
+        name: res?.name || '',
+        id
+    }
+}
+
+export { getCategories, getCategory };
