@@ -1,7 +1,7 @@
 "use server";
 
 import db from "@/lib/db";
-import { CategorySchema } from "../_types/categorySchema";
+import { CategorySchema } from "@/app/(dashboard)/admin/foods-management/categories/_types/categorySchema";
 
 const getCategories = async () => {
     return await db.category.findMany({
