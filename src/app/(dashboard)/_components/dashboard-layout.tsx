@@ -29,6 +29,10 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import z from 'zod';
 import customErrorMap from "@/lib/customErrorMap";
+import { Session } from "next-auth";
+import { useSignOut } from "@/app/(auth)/sign-in/_services/useMutation";
+import { Role } from "$/generated/prisma";
+import { sign } from "crypto";
 z.setErrorMap(customErrorMap);
 
 type RouteGroup = {
@@ -128,10 +132,25 @@ const RouteGroup = ({ group, items }: RouteGroupProps) => {
 
 type DashboardLayoutProps = {
     children: ReactNode;
+    session: Session;
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+const DashboardLayout = ({ children, session }: DashboardLayoutProps) => {
     const [open, setOpen] = useState(false);
+    const signOutMutation = useSignOut();
+    const userRole = session.user?.role;
+
+    const filterRouteGroups = ROUTE_GROUPS.filter((group) => {
+      if (userRole === Role.ADMIN) {
+        return group.group === 'Foods Management';
+      } else {
+        return group.group === 'Meals Management';
+      }
+    })
+
+    const handleLogout = () => {
+      signOutMutation.mutate();
+    }
     return <div className="flex">
       <div className="bg-background fixed z-10 h-13 flex w-screen items-center justify-between border px-2">
         <Collapsible.Root className="h-full" open={open} onOpenChange={setOpen}>
@@ -143,13 +162,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </Collapsible.Root>
         <div className="flex">
           <ThemeToggle />
-          <DropdownMenu>
+          {session && (<DropdownMenu>
               <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex h-9 items-center gap-2 px-2">
                       <Avatar className="size-8">
-                          <AvatarFallback>A</AvatarFallback>
+                          <AvatarFallback>{session.user?.name?.[0]}</AvatarFallback>
                       </Avatar>
-                      <span className="hidden md:inline">Admin</span>
+                      <span className="hidden md:inline">{session.user?.name}</span>
                   </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -157,19 +176,20 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <DropdownMenuSeparator />
                   <div className="flex items-center gap-3 px-2 py-1.5">
                       <Avatar className="size-10">
-                          <AvatarFallback>A</AvatarFallback>
+                          <AvatarFallback>{session.user?.name?.[0]}</AvatarFallback>
                       </Avatar>
                       <div>
-                          <p className="text-sm font-medium">Admin</p>
-                          <p className="text-muted-foreground text-xs">admin@test.com</p>
+                          <p className="text-sm font-medium">{session.user?.name}</p>
+                          <p className="text-muted-foreground text-xs">{session.user?.email}</p>
                       </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive" onClick={() => {}}>
+                  <DropdownMenuItem variant="destructive" onClick={handleLogout}>
                       <LogOut className="mr-2 size-4" />
                   </DropdownMenuItem>
               </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>)} 
+          
       </div>
       </div>
       <Collapsible.Root className="fixed top-0 left-0 z-20 h-dvh" open={open} onOpenChange={setOpen}>
@@ -186,7 +206,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Separator className="my-2" />
                   <div className="mt-4">
                       {
-                          ROUTE_GROUPS.map((group) => (
+                          filterRouteGroups.map((group) => (
                               <RouteGroup key={group.group} group={group.group} items={group.items} />
                           ))
                       }
